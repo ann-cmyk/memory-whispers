@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { ArrowLeft, MoreHorizontal, MessageCircle, Phone, Heart, Users, Calendar } from "lucide-react";
+import { useState, useRef } from "react";
+import { ArrowLeft, MoreHorizontal, MessageCircle, Phone, Heart, Users, Calendar, Award, GraduationCap, Briefcase, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import samplePortrait from "@/assets/sample-portrait.jpg";
 import familyMemory1 from "@/assets/family-memory-1.jpg";
 import familyMemory2 from "@/assets/family-memory-2.jpg";
@@ -17,15 +18,51 @@ interface MemorialProfileProps {
 const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   const [activeTab, setActiveTab] = useState("grid");
   const [showAIMenu, setShowAIMenu] = useState(false);
+  const achievementsRef = useRef<HTMLDivElement>(null);
+
+  const achievements = [
+    {
+      id: 1,
+      icon: GraduationCap,
+      title: "Thạc sĩ Mỹ thuật",
+      description: "Tốt nghiệp loại xuất sắc Đại học Mỹ thuật Việt Nam",
+      type: "education"
+    },
+    {
+      id: 2,
+      icon: Award,
+      title: "Giải thưởng Nghệ sĩ ưu tú",
+      description: "Vinh danh đóng góp trong lĩnh vực giáo dục nghệ thuật",
+      type: "achievement"
+    },
+    {
+      id: 3,
+      icon: Briefcase,
+      title: "Hiệu trưởng trường THPT Nghệ thuật",
+      description: "Lãnh đạo trường trong 15 năm, đào tạo hàng nghìn học sinh",
+      type: "career"
+    },
+    {
+      id: 4,
+      icon: Heart,
+      title: "Gia đình hạnh phúc",
+      description: "Nuôi dạy 3 người con thành tài, có cuộc sống viên mãn",
+      type: "family"
+    }
+  ];
 
   const memories = [
-    { id: 1, image: familyMemory1, type: "photo", date: "2024-01-15" },
-    { id: 2, image: familyMemory2, type: "photo", date: "2023-12-25" },
-    { id: 3, image: familyMemory3, type: "video", date: "2023-11-20" },
-    { id: 4, image: familyMemory1, type: "photo", date: "2023-10-10" },
-    { id: 5, image: familyMemory2, type: "photo", date: "2023-09-05" },
-    { id: 6, image: familyMemory3, type: "photo", date: "2023-08-15" },
+    { id: 1, image: familyMemory1, type: "photo", date: "2024-01-15", isAchievement: false },
+    { id: 2, image: familyMemory2, type: "photo", date: "2023-12-25", isAchievement: false },
+    { id: 3, image: familyMemory3, type: "video", date: "2023-11-20", isAchievement: true, achievementTitle: "Lễ trao giải Nghệ sĩ ưu tú" },
+    { id: 4, image: familyMemory1, type: "photo", date: "2023-10-10", isAchievement: false },
+    { id: 5, image: familyMemory2, type: "photo", date: "2023-09-05", isAchievement: true, achievementTitle: "Kỷ niệm 40 năm công tác" },
+    { id: 6, image: familyMemory3, type: "photo", date: "2023-08-15", isAchievement: false },
   ];
+
+  const scrollToAchievements = () => {
+    achievementsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-elegant">
@@ -34,7 +71,17 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         <Button variant="ghost" size="icon">
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-semibold text-foreground">Nguyễn Văn Minh</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-lg font-semibold text-foreground">Nguyễn Văn Minh</h1>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-6 w-6 text-memorial-primary hover:bg-memorial-primary/10"
+            onClick={scrollToAchievements}
+          >
+            <Award className="h-4 w-4" />
+          </Button>
+        </div>
         <Button variant="ghost" size="icon">
           <MoreHorizontal className="h-5 w-5" />
         </Button>
@@ -115,6 +162,42 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         </div>
       </div>
 
+      {/* Featured Achievements */}
+      <div ref={achievementsRef} className="px-6 py-6 bg-card/30">
+        <div className="space-y-4">
+          <h3 className="text-xl font-bold text-foreground text-center">Hành Trình Tự Hào</h3>
+          <Carousel className="w-full max-w-sm mx-auto">
+            <CarouselContent>
+              {achievements.map((achievement) => {
+                const IconComponent = achievement.icon;
+                return (
+                  <CarouselItem key={achievement.id}>
+                    <Card className="p-4 h-32 flex flex-col justify-center space-y-2 bg-gradient-to-br from-memorial-primary/5 to-memorial-accent/5 border-memorial-primary/20">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-full bg-memorial-primary/10">
+                          <IconComponent className="h-5 w-5 text-memorial-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm text-foreground truncate">{achievement.title}</h4>
+                          <p className="text-xs text-muted-foreground line-clamp-2">{achievement.description}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  </CarouselItem>
+                );
+              })}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+          <div className="text-center">
+            <Button variant="ghost" className="text-memorial-primary hover:bg-memorial-primary/10">
+              Xem tất cả <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
       {/* Content Tabs */}
       <div className="px-6">
         <div className="flex border-b border-border">
@@ -166,15 +249,34 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         {activeTab === "timeline" && (
           <div className="space-y-6">
             {memories.map((memory) => (
-              <Card key={memory.id} className="p-4 space-y-3">
+              <Card 
+                key={memory.id} 
+                className={`p-4 space-y-3 relative ${
+                  memory.isAchievement 
+                    ? 'border-memorial-primary/30 bg-gradient-to-br from-memorial-primary/5 to-memorial-accent/5' 
+                    : ''
+                }`}
+              >
+                {memory.isAchievement && (
+                  <div className="absolute top-3 right-3">
+                    <div className="p-1 rounded-full bg-memorial-primary/20">
+                      <Award className="h-4 w-4 text-memorial-primary" />
+                    </div>
+                  </div>
+                )}
                 <div className="flex items-center gap-3">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={samplePortrait} />
                     <AvatarFallback>NVM</AvatarFallback>
                   </Avatar>
-                  <div>
+                  <div className="flex-1">
                     <p className="font-medium">Nguyễn Văn Minh</p>
                     <p className="text-sm text-muted-foreground">{memory.date}</p>
+                    {memory.isAchievement && memory.achievementTitle && (
+                      <p className="text-sm font-semibold text-memorial-primary mt-1">
+                        🏆 {memory.achievementTitle}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <img src={memory.image} alt="Memory" className="w-full rounded-lg" />
