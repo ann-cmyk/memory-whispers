@@ -61,7 +61,16 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				memorial: {
+					primary: 'hsl(var(--memorial-primary))',
+					soft: 'hsl(var(--memorial-soft))',
+					warm: 'hsl(var(--memorial-warm))'
 				}
+			},
+			backgroundImage: {
+				'gradient-memorial': 'var(--gradient-memorial)',
+				'gradient-elegant': 'var(--gradient-elegant)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

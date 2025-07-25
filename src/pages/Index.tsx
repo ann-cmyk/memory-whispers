@@ -1,13 +1,37 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import MemorialProfile from "@/components/MemorialProfile";
+import AIChat from "@/components/AIChat";
+import AICall from "@/components/AICall";
+
+type AppState = "profile" | "chat" | "call";
 
 const Index = () => {
+  const [currentView, setCurrentView] = useState<AppState>("profile");
+
+  const handleOpenChat = () => setCurrentView("chat");
+  const handleOpenCall = () => setCurrentView("call");
+  const handleBackToProfile = () => setCurrentView("profile");
+
+  if (currentView === "chat") {
+    return (
+      <AIChat 
+        onBack={handleBackToProfile}
+        onOpenCall={handleOpenCall}
+      />
+    );
+  }
+
+  if (currentView === "call") {
+    return (
+      <AICall onEndCall={handleBackToProfile} />
+    );
+  }
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
-    </div>
+    <MemorialProfile 
+      onOpenChat={handleOpenChat}
+      onOpenCall={handleOpenCall}
+    />
   );
 };
 
