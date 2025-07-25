@@ -1,5 +1,8 @@
 import { useState, useRef } from "react";
-import { ArrowLeft, MoreHorizontal, MessageCircle, Phone, Heart, Users, Calendar, Award, GraduationCap, Briefcase, ChevronRight } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, MessageCircle, Phone, Heart, Users, Calendar, Award, GraduationCap, Briefcase, ChevronRight, Plus, Edit2 } from "lucide-react";
+import AddMemoryFlow from "./AddMemoryFlow";
+import PersonaManager from "./PersonaManager";
+import TimelineEditor from "./TimelineEditor";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -18,6 +21,9 @@ interface MemorialProfileProps {
 const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   const [activeTab, setActiveTab] = useState("grid");
   const [showAIMenu, setShowAIMenu] = useState(false);
+  const [showAddMemory, setShowAddMemory] = useState(false);
+  const [showPersonaManager, setShowPersonaManager] = useState(false);
+  const [showTimelineEditor, setShowTimelineEditor] = useState(false);
   const achievementsRef = useRef<HTMLDivElement>(null);
 
   const achievements = [
@@ -51,14 +57,36 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
     }
   ];
 
-  const memories = [
+  const [memories, setMemories] = useState([
     { id: 1, image: familyMemory1, type: "photo", date: "2024-01-15", isAchievement: false },
     { id: 2, image: familyMemory2, type: "photo", date: "2023-12-25", isAchievement: false },
     { id: 3, image: familyMemory3, type: "video", date: "2023-11-20", isAchievement: true, achievementTitle: "Lễ trao giải Nghệ sĩ ưu tú" },
     { id: 4, image: familyMemory1, type: "photo", date: "2023-10-10", isAchievement: false },
     { id: 5, image: familyMemory2, type: "photo", date: "2023-09-05", isAchievement: true, achievementTitle: "Kỷ niệm 40 năm công tác" },
     { id: 6, image: familyMemory3, type: "photo", date: "2023-08-15", isAchievement: false },
-  ];
+  ]);
+
+  const handleAddMemory = (memory: any) => {
+    const newMemory = {
+      ...memory,
+      image: memory.files[0] ? URL.createObjectURL(memory.files[0]) : familyMemory1
+    };
+    setMemories([newMemory, ...memories]);
+  };
+
+  const handleAddMilestone = (milestone: any) => {
+    const newMemory = {
+      id: milestone.id,
+      image: milestone.files[0] ? URL.createObjectURL(milestone.files[0]) : familyMemory1,
+      type: "milestone",
+      date: milestone.date,
+      isAchievement: milestone.isAchievement,
+      achievementTitle: milestone.isAchievement ? milestone.title : undefined,
+      title: milestone.title,
+      content: milestone.content
+    };
+    setMemories([newMemory, ...memories]);
+  };
 
   const scrollToAchievements = () => {
     achievementsRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -222,6 +250,13 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
           >
             Câu chuyện cuộc đời
           </Button>
+          <Button
+            variant="ghost"
+            className={`flex-1 pb-3 ${activeTab === "persona" ? "border-b-2 border-memorial-primary" : ""}`}
+            onClick={() => setActiveTab("persona")}
+          >
+            Chân dung
+          </Button>
         </div>
       </div>
 
@@ -248,6 +283,18 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
 
         {activeTab === "timeline" && (
           <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h3 className="font-semibold text-foreground">Dòng thời gian</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTimelineEditor(true)}
+                className="text-memorial-primary border-memorial-primary/30"
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Thêm cột mốc
+              </Button>
+            </div>
             {memories.map((memory) => (
               <Card 
                 key={memory.id} 
@@ -297,7 +344,18 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
 
         {activeTab === "story" && (
           <Card className="p-6 space-y-4">
-            <h3 className="text-xl font-bold text-foreground">Câu chuyện cuộc đời</h3>
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold text-foreground">Câu chuyện cuộc đời</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTimelineEditor(true)}
+                className="text-memorial-primary border-memorial-primary/30"
+              >
+                <Edit2 className="h-4 w-4 mr-1" />
+                Chỉnh sửa
+              </Button>
+            </div>
             <div className="space-y-4 text-foreground leading-relaxed">
               <p>
                 Nguyễn Văn Minh sinh năm 1960 tại một gia đình nông dân nghèo ở Hà Nội. 
@@ -314,7 +372,100 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
             </div>
           </Card>
         )}
+
+        {activeTab === "persona" && (
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="font-semibold text-foreground">Chân dung nhân cách</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPersonaManager(true)}
+                className="text-memorial-primary border-memorial-primary/30"
+              >
+                <Edit2 className="h-4 w-4 mr-1" />
+                Quản lý
+              </Button>
+            </div>
+            
+            <div className="grid gap-4">
+              <Card className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-full bg-memorial-primary/10">
+                    <Heart className="h-5 w-5 text-memorial-primary" />
+                  </div>
+                  <h4 className="font-semibold text-foreground">Tính cách</h4>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">• Hài hước, dí dỏm</p>
+                  <p className="text-sm text-muted-foreground">• Luôn quan tâm đến mọi người</p>
+                  <p className="text-sm text-muted-foreground">• Nóng tính nhưng rất mau quên</p>
+                  <p className="text-sm text-muted-foreground">• Trách nhiệm và đáng tin cậy</p>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-full bg-memorial-primary/10">
+                    <Award className="h-5 w-5 text-memorial-primary" />
+                  </div>
+                  <h4 className="font-semibold text-foreground">Thành tựu nổi bật</h4>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">• Giải nhất học sinh giỏi Văn cấp thành phố 1980</p>
+                  <p className="text-sm text-muted-foreground">• Xây dựng thành công trường THPT Nghệ thuật</p>
+                  <p className="text-sm text-muted-foreground">• Nuôi dạy 3 người con thành tài</p>
+                  <p className="text-sm text-muted-foreground">• Đào tạo hàng nghìn học sinh</p>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-full bg-memorial-primary/10">
+                    <Heart className="h-5 w-5 text-memorial-primary" />
+                  </div>
+                  <h4 className="font-semibold text-foreground">Sở thích</h4>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">• Hội họa và vẽ tranh phong cảnh</p>
+                  <p className="text-sm text-muted-foreground">• Nghe nhạc cổ điển</p>
+                  <p className="text-sm text-muted-foreground">• Đọc sách văn học</p>
+                  <p className="text-sm text-muted-foreground">• Làm vườn vào cuối tuần</p>
+                </div>
+              </Card>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Floating Action Button */}
+      <Button
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-memorial-primary hover:bg-memorial-primary/90 shadow-elegant z-40"
+        onClick={() => setShowAddMemory(true)}
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
+
+      {/* Modals */}
+      {showAddMemory && (
+        <AddMemoryFlow
+          onClose={() => setShowAddMemory(false)}
+          onSave={handleAddMemory}
+        />
+      )}
+
+      {showPersonaManager && (
+        <PersonaManager
+          onClose={() => setShowPersonaManager(false)}
+        />
+      )}
+
+      {showTimelineEditor && (
+        <TimelineEditor
+          onClose={() => setShowTimelineEditor(false)}
+          onSave={handleAddMilestone}
+        />
+      )}
     </div>
   );
 };
