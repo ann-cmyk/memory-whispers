@@ -9,10 +9,13 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import samplePortrait from "@/assets/sample-portrait.jpg";
-import familyMemory1 from "@/assets/family-memory-1.jpg";
-import familyMemory2 from "@/assets/family-memory-2.jpg";
-import familyMemory3 from "@/assets/family-memory-3.jpg";
+import mjPortrait from "@/assets/mj-portrait.jpg";
+import mjMemory1 from "@/assets/mj-memory-1.jpg";
+import mjMemory2 from "@/assets/mj-memory-2.jpg";
+import mjMemory3 from "@/assets/mj-memory-3.jpg";
+import mjMemory4 from "@/assets/mj-memory-4.jpg";
+import mjMemory5 from "@/assets/mj-memory-5.jpg";
+import mjMemory6 from "@/assets/mj-memory-6.jpg";
 
 interface MemorialProfileProps {
   onOpenChat: () => void;
@@ -98,12 +101,18 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   ];
 
   const [memories, setMemories] = useState([
-    { id: 1, image: familyMemory1, type: "photo", date: "2009-06-25", isAchievement: true, achievementTitle: "This Is It rehearsals", content: "Final rehearsals for the comeback tour that would have been legendary" },
-    { id: 2, image: familyMemory2, type: "video", date: "1983-05-16", isAchievement: true, achievementTitle: "First Moonwalk on TV", content: "Motown 25th anniversary special - the moment that changed everything" },
-    { id: 3, image: familyMemory3, type: "photo", date: "1982-11-30", isAchievement: true, achievementTitle: "Thriller Album Release", content: "The album that would become the best-selling album of all time" },
-    { id: 4, image: familyMemory1, type: "photo", date: "1988-01-01", isAchievement: false, content: "Family time during the Bad tour" },
-    { id: 5, image: familyMemory2, type: "video", date: "1995-06-15", isAchievement: true, achievementTitle: "HIStory Album", content: "Double album featuring greatest hits and new material" },
-    { id: 6, image: familyMemory3, type: "photo", date: "2001-10-30", isAchievement: false, content: "Last public performance with his brothers" },
+    { id: 1, image: mjMemory1, type: "photo", date: "2009-06-25", isAchievement: true, achievementTitle: "This Is It rehearsals", content: "Final rehearsals for the comeback tour that would have been legendary" },
+    { id: 2, image: mjMemory2, type: "video", date: "1983-05-16", isAchievement: true, achievementTitle: "First Moonwalk on TV", content: "Motown 25th anniversary special - the moment that changed everything" },
+    { id: 3, image: mjMemory3, type: "photo", date: "1982-11-30", isAchievement: true, achievementTitle: "Thriller Album Release", content: "The album that would become the best-selling album of all time" },
+    { id: 4, image: mjMemory4, type: "photo", date: "1988-01-01", isAchievement: false, content: "Recording sessions during Bad era" },
+    { id: 5, image: mjMemory5, type: "video", date: "1995-06-15", isAchievement: true, achievementTitle: "HIStory Album", content: "Double album featuring greatest hits and new material" },
+    { id: 6, image: mjMemory6, type: "photo", date: "2001-10-30", isAchievement: false, content: "Behind the scenes during music video production" },
+    { id: 7, image: mjMemory1, type: "photo", date: "1987-03-12", isAchievement: false, content: "Studio work on Bad album" },
+    { id: 8, image: mjMemory2, type: "photo", date: "1984-07-05", isAchievement: true, achievementTitle: "Victory Tour", content: "Reunion tour with Jackson 5 brothers" },
+    { id: 9, image: mjMemory3, type: "video", date: "1991-11-14", isAchievement: true, achievementTitle: "Black or White premiere", content: "Groundbreaking music video with morphing technology" },
+    { id: 10, image: mjMemory4, type: "photo", date: "1996-05-20", isAchievement: false, content: "Charity work and humanitarian efforts" },
+    { id: 11, image: mjMemory5, type: "photo", date: "1993-02-01", isAchievement: true, achievementTitle: "Super Bowl XXVII", content: "Historic halftime show performance" },
+    { id: 12, image: mjMemory6, type: "video", date: "1979-12-18", isAchievement: false, content: "Early solo career moments" },
   ]);
 
   // Auto slideshow for timeline
@@ -124,7 +133,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   const handleAddMemory = (memory: any) => {
     const newMemory = {
       ...memory,
-      image: memory.files[0] ? URL.createObjectURL(memory.files[0]) : familyMemory1
+      image: memory.files[0] ? URL.createObjectURL(memory.files[0]) : mjMemory1
     };
     setMemories([newMemory, ...memories]);
   };
@@ -132,7 +141,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   const handleAddMilestone = (milestone: any) => {
     const newMemory = {
       id: milestone.id,
-      image: milestone.files[0] ? URL.createObjectURL(milestone.files[0]) : familyMemory1,
+      image: milestone.files[0] ? URL.createObjectURL(milestone.files[0]) : mjMemory1,
       type: "milestone",
       date: milestone.date,
       isAchievement: milestone.isAchievement,
@@ -183,7 +192,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
       <div className="px-6 py-8">
         <div className="flex flex-col items-center space-y-4">
           <Avatar className="w-32 h-32 border-4 border-memorial-primary/20">
-            <AvatarImage src={samplePortrait} alt="Michael Jackson" />
+            <AvatarImage src={mjPortrait} alt="Michael Jackson" />
             <AvatarFallback>MJ</AvatarFallback>
           </Avatar>
           
@@ -411,7 +420,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                 
                 <div className="flex items-center gap-4">
                   <Avatar className="w-12 h-12">
-                    <AvatarImage src={samplePortrait} />
+                    <AvatarImage src={mjPortrait} />
                     <AvatarFallback>MJ</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
