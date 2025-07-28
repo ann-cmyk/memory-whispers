@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { ArrowLeft, MoreHorizontal, MessageCircle, Phone, Heart, Users, Calendar, Award, GraduationCap, Briefcase, ChevronRight, Plus, Edit2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { ArrowLeft, MoreHorizontal, MessageCircle, Phone, Heart, Users, Calendar, Award, GraduationCap, Briefcase, ChevronRight, Plus, Edit2, QrCode, Share2, Music, Star, Globe, ChevronLeft } from "lucide-react";
 import AddMemoryFlow from "./AddMemoryFlow";
 import PersonaManager from "./PersonaManager";
 import TimelineEditor from "./TimelineEditor";
@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import samplePortrait from "@/assets/sample-portrait.jpg";
 import familyMemory1 from "@/assets/family-memory-1.jpg";
 import familyMemory2 from "@/assets/family-memory-2.jpg";
@@ -24,47 +25,101 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   const [showAddMemory, setShowAddMemory] = useState(false);
   const [showPersonaManager, setShowPersonaManager] = useState(false);
   const [showTimelineEditor, setShowTimelineEditor] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [showExpandedAchievements, setShowExpandedAchievements] = useState(false);
   const achievementsRef = useRef<HTMLDivElement>(null);
 
   const achievements = [
     {
       id: 1,
-      icon: GraduationCap,
-      title: "Thạc sĩ Mỹ thuật",
-      description: "Tốt nghiệp loại xuất sắc Đại học Mỹ thuật Việt Nam",
-      type: "education"
+      icon: Music,
+      title: "King of Pop",
+      description: "Biểu tượng âm nhạc toàn cầu, người thay đổi nền công nghiệp giải trí",
+      type: "music",
+      year: "1970s-2009"
     },
     {
       id: 2,
       icon: Award,
-      title: "Giải thưởng Nghệ sĩ ưu tú",
-      description: "Vinh danh đóng góp trong lĩnh vực giáo dục nghệ thuật",
-      type: "achievement"
+      title: "13 Grammy Awards",
+      description: "Đoạt giải Grammy nhiều nhất trong sự nghiệp solo",
+      type: "achievement",
+      year: "1984-1996"
     },
     {
       id: 3,
-      icon: Briefcase,
-      title: "Hiệu trưởng trường THPT Nghệ thuật",
-      description: "Lãnh đạo trường trong 15 năm, đào tạo hàng nghìn học sinh",
-      type: "career"
+      icon: Star,
+      title: "Album Thriller",
+      description: "Album bán chạy nhất mọi thời đại với 66 triệu bản trên toàn thế giới",
+      type: "milestone",
+      year: "1982"
     },
     {
       id: 4,
+      icon: Globe,
+      title: "Moonwalk Dance",
+      description: "Tạo ra điệu nhảy iconic làm say mê hàng triệu người hâm mộ",
+      type: "innovation",
+      year: "1983"
+    },
+    {
+      id: 5,
       icon: Heart,
-      title: "Gia đình hạnh phúc",
-      description: "Nuôi dạy 3 người con thành tài, có cuộc sống viên mãn",
-      type: "family"
+      title: "Humanitarian Work",
+      description: "Từ thiện cho 39 tổ chức, quyên góp hơn 300 triệu USD",
+      type: "charity",
+      year: "1980-2009"
+    },
+    {
+      id: 6,
+      icon: Star,
+      title: "Rock & Roll Hall of Fame",
+      description: "Được vinh danh 2 lần: cùng Jackson 5 và sự nghiệp solo",
+      type: "honor",
+      year: "1997, 2001"
+    },
+    {
+      id: 7,
+      icon: Music,
+      title: "MTV Video Music Awards",
+      description: "Nhận được Video Vanguard Award và nhiều giải thưởng khác",
+      type: "recognition",
+      year: "1988"
+    },
+    {
+      id: 8,
+      icon: Globe,
+      title: "Global Icon",
+      description: "Ảnh hưởng văn hóa vượt qua biên giới, tạo cảm hứng cho hàng triệu người",
+      type: "legacy",
+      year: "1958-2009"
     }
   ];
 
   const [memories, setMemories] = useState([
-    { id: 1, image: familyMemory1, type: "photo", date: "2024-01-15", isAchievement: false },
-    { id: 2, image: familyMemory2, type: "photo", date: "2023-12-25", isAchievement: false },
-    { id: 3, image: familyMemory3, type: "video", date: "2023-11-20", isAchievement: true, achievementTitle: "Lễ trao giải Nghệ sĩ ưu tú" },
-    { id: 4, image: familyMemory1, type: "photo", date: "2023-10-10", isAchievement: false },
-    { id: 5, image: familyMemory2, type: "photo", date: "2023-09-05", isAchievement: true, achievementTitle: "Kỷ niệm 40 năm công tác" },
-    { id: 6, image: familyMemory3, type: "photo", date: "2023-08-15", isAchievement: false },
+    { id: 1, image: familyMemory1, type: "photo", date: "2009-06-25", isAchievement: true, achievementTitle: "This Is It rehearsals", content: "Final rehearsals for the comeback tour that would have been legendary" },
+    { id: 2, image: familyMemory2, type: "video", date: "1983-05-16", isAchievement: true, achievementTitle: "First Moonwalk on TV", content: "Motown 25th anniversary special - the moment that changed everything" },
+    { id: 3, image: familyMemory3, type: "photo", date: "1982-11-30", isAchievement: true, achievementTitle: "Thriller Album Release", content: "The album that would become the best-selling album of all time" },
+    { id: 4, image: familyMemory1, type: "photo", date: "1988-01-01", isAchievement: false, content: "Family time during the Bad tour" },
+    { id: 5, image: familyMemory2, type: "video", date: "1995-06-15", isAchievement: true, achievementTitle: "HIStory Album", content: "Double album featuring greatest hits and new material" },
+    { id: 6, image: familyMemory3, type: "photo", date: "2001-10-30", isAchievement: false, content: "Last public performance with his brothers" },
   ]);
+
+  // Auto slideshow for timeline
+  useEffect(() => {
+    if (activeTab === "timeline") {
+      const interval = setInterval(() => {
+        setCurrentSlideIndex((prev) => (prev + 1) % memories.length);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab, memories.length]);
+
+  const generateQRCode = () => {
+    // In a real app, this would generate an actual QR code
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='white'/%3E%3Ctext x='50' y='50' text-anchor='middle' font-size='8'%3EMJ Profile%3C/text%3E%3C/svg%3E";
+  };
 
   const handleAddMemory = (memory: any) => {
     const newMemory = {
@@ -100,7 +155,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold text-foreground">Nguyễn Văn Minh</h1>
+          <h1 className="text-lg font-semibold text-foreground">Michael Jackson</h1>
           <Button 
             variant="ghost" 
             size="icon" 
@@ -110,43 +165,52 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
             <Award className="h-4 w-4" />
           </Button>
         </div>
-        <Button variant="ghost" size="icon">
-          <MoreHorizontal className="h-5 w-5" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => setShowQRCode(true)}
+          >
+            <QrCode className="h-5 w-5" />
+          </Button>
+          <Button variant="ghost" size="icon">
+            <MoreHorizontal className="h-5 w-5" />
+          </Button>
+        </div>
       </div>
 
       {/* Profile Info */}
       <div className="px-6 py-8">
         <div className="flex flex-col items-center space-y-4">
           <Avatar className="w-32 h-32 border-4 border-memorial-primary/20">
-            <AvatarImage src={samplePortrait} alt="Nguyễn Văn Minh" />
-            <AvatarFallback>NVM</AvatarFallback>
+            <AvatarImage src={samplePortrait} alt="Michael Jackson" />
+            <AvatarFallback>MJ</AvatarFallback>
           </Avatar>
           
           <div className="text-center space-y-2">
-            <h2 className="text-2xl font-bold text-foreground">Nguyễn Văn Minh</h2>
+            <h2 className="text-2xl font-bold text-foreground">Michael Jackson</h2>
             <p className="text-muted-foreground flex items-center justify-center gap-2">
               <Calendar className="h-4 w-4" />
-              1960 - 2024
+              August 29, 1958 - June 25, 2009
             </p>
             <p className="text-center max-w-sm text-muted-foreground leading-relaxed">
-              Người cha, người chồng kính yêu. Một tâm hồn yêu nghệ thuật và luôn sống hết mình vì gia đình.
+              The King of Pop. A musical genius who touched millions of hearts and changed the world forever through his art, dance, and humanitarian spirit.
             </p>
           </div>
 
           {/* Stats */}
           <div className="flex gap-8 text-center">
             <div className="space-y-1">
-              <p className="text-xl font-bold text-foreground">24</p>
-              <p className="text-sm text-muted-foreground">Kỷ niệm</p>
+              <p className="text-xl font-bold text-foreground">750M+</p>
+              <p className="text-sm text-muted-foreground">Albums Sold</p>
             </div>
             <div className="space-y-1">
-              <p className="text-xl font-bold text-foreground">156</p>
-              <p className="text-sm text-muted-foreground">Người tưởng nhớ</p>
+              <p className="text-xl font-bold text-foreground">1.2B</p>
+              <p className="text-sm text-muted-foreground">Fans Worldwide</p>
             </div>
             <div className="space-y-1">
-              <p className="text-xl font-bold text-foreground">432</p>
-              <p className="text-sm text-muted-foreground">Vòng tay yêu thương</p>
+              <p className="text-xl font-bold text-foreground">∞</p>
+              <p className="text-sm text-muted-foreground">Eternal Love</p>
             </div>
           </div>
 
@@ -157,7 +221,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
               className="bg-memorial-primary hover:bg-memorial-primary/90 text-primary-foreground px-6 py-3 rounded-full"
             >
               <MessageCircle className="h-4 w-4 mr-2" />
-              Trò chuyện & Tưởng nhớ
+              Talk to the King
             </Button>
             
             {showAIMenu && (
@@ -171,7 +235,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                   }}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  Trò chuyện
+                  Chat
                 </Button>
                 <Button
                   variant="ghost"
@@ -182,7 +246,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                   }}
                 >
                   <Phone className="h-4 w-4 mr-2" />
-                  Gọi điện
+                  Call
                 </Button>
               </Card>
             )}
@@ -190,37 +254,66 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         </div>
       </div>
 
-      {/* Featured Achievements */}
+      {/* Featured Achievements - Expanded */}
       <div ref={achievementsRef} className="px-6 py-6 bg-card/30">
-        <div className="space-y-4">
-          <h3 className="text-xl font-bold text-foreground text-center">Hành Trình Tự Hào</h3>
-          <Carousel className="w-full max-w-sm mx-auto">
-            <CarouselContent>
+        <div className="space-y-6">
+          <h3 className="text-2xl font-bold text-foreground text-center">Legendary Achievements</h3>
+          
+          {!showExpandedAchievements ? (
+            // Collapsed view - show 4 in grid
+            <div className="grid grid-cols-2 gap-4">
+              {achievements.slice(0, 4).map((achievement) => {
+                const IconComponent = achievement.icon;
+                return (
+                  <Card key={achievement.id} className="p-4 bg-gradient-to-br from-memorial-primary/5 to-memorial-accent/5 border-memorial-primary/20">
+                    <div className="flex flex-col items-center text-center space-y-2">
+                      <div className="p-3 rounded-full bg-memorial-primary/10">
+                        <IconComponent className="h-6 w-6 text-memorial-primary" />
+                      </div>
+                      <h4 className="font-semibold text-sm text-foreground">{achievement.title}</h4>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{achievement.description}</p>
+                      {achievement.year && (
+                        <Badge variant="secondary" className="text-xs">{achievement.year}</Badge>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+          ) : (
+            // Expanded view - show all in grid
+            <div className="grid grid-cols-2 gap-4">
               {achievements.map((achievement) => {
                 const IconComponent = achievement.icon;
                 return (
-                  <CarouselItem key={achievement.id}>
-                    <Card className="p-4 h-32 flex flex-col justify-center space-y-2 bg-gradient-to-br from-memorial-primary/5 to-memorial-accent/5 border-memorial-primary/20">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-full bg-memorial-primary/10">
-                          <IconComponent className="h-5 w-5 text-memorial-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-sm text-foreground truncate">{achievement.title}</h4>
-                          <p className="text-xs text-muted-foreground line-clamp-2">{achievement.description}</p>
-                        </div>
+                  <Card key={achievement.id} className="p-4 bg-gradient-to-br from-memorial-primary/5 to-memorial-accent/5 border-memorial-primary/20">
+                    <div className="flex flex-col items-center text-center space-y-2">
+                      <div className="p-3 rounded-full bg-memorial-primary/10">
+                        <IconComponent className="h-6 w-6 text-memorial-primary" />
                       </div>
-                    </Card>
-                  </CarouselItem>
+                      <h4 className="font-semibold text-sm text-foreground">{achievement.title}</h4>
+                      <p className="text-xs text-muted-foreground line-clamp-3">{achievement.description}</p>
+                      {achievement.year && (
+                        <Badge variant="secondary" className="text-xs">{achievement.year}</Badge>
+                      )}
+                    </div>
+                  </Card>
                 );
               })}
-            </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
-          </Carousel>
+            </div>
+          )}
+          
           <div className="text-center">
-            <Button variant="ghost" className="text-memorial-primary hover:bg-memorial-primary/10">
-              Xem tất cả <ChevronRight className="h-4 w-4 ml-1" />
+            <Button 
+              variant="ghost" 
+              className="text-memorial-primary hover:bg-memorial-primary/10"
+              onClick={() => setShowExpandedAchievements(!showExpandedAchievements)}
+            >
+              {showExpandedAchievements ? (
+                <>Show Less <ChevronLeft className="h-4 w-4 ml-1" /></>
+              ) : (
+                <>Show All {achievements.length} <ChevronRight className="h-4 w-4 ml-1" /></>
+              )}
             </Button>
           </div>
         </div>
@@ -234,28 +327,28 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
             className={`flex-1 pb-3 ${activeTab === "grid" ? "border-b-2 border-memorial-primary" : ""}`}
             onClick={() => setActiveTab("grid")}
           >
-            Lưới Kỷ niệm
+            Gallery
           </Button>
           <Button
             variant="ghost"
             className={`flex-1 pb-3 ${activeTab === "timeline" ? "border-b-2 border-memorial-primary" : ""}`}
             onClick={() => setActiveTab("timeline")}
           >
-            Dòng thời gian
+            Timeline
           </Button>
           <Button
             variant="ghost"
             className={`flex-1 pb-3 ${activeTab === "story" ? "border-b-2 border-memorial-primary" : ""}`}
             onClick={() => setActiveTab("story")}
           >
-            Câu chuyện cuộc đời
+            Life Story
           </Button>
           <Button
             variant="ghost"
             className={`flex-1 pb-3 ${activeTab === "persona" ? "border-b-2 border-memorial-primary" : ""}`}
             onClick={() => setActiveTab("persona")}
           >
-            Chân dung
+            Legacy
           </Button>
         </div>
       </div>
@@ -284,68 +377,123 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         {activeTab === "timeline" && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-foreground">Dòng thời gian</h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowTimelineEditor(true)}
-                className="text-memorial-primary border-memorial-primary/30"
-              >
-                <Plus className="h-4 w-4 mr-1" />
-                Thêm cột mốc
-              </Button>
+              <h3 className="font-semibold text-foreground">Timeline Slideshow</h3>
+              <div className="flex gap-2">
+                <div className="text-xs text-muted-foreground">
+                  {currentSlideIndex + 1} / {memories.length}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowTimelineEditor(true)}
+                  className="text-memorial-primary border-memorial-primary/30"
+                >
+                  <Plus className="h-4 w-4 mr-1" />
+                  Add Moment
+                </Button>
+              </div>
             </div>
-            {memories.map((memory) => (
-              <Card 
-                key={memory.id} 
-                className={`p-4 space-y-3 relative ${
-                  memory.isAchievement 
-                    ? 'border-memorial-primary/30 bg-gradient-to-br from-memorial-primary/5 to-memorial-accent/5' 
-                    : ''
-                }`}
-              >
-                {memory.isAchievement && (
-                  <div className="absolute top-3 right-3">
-                    <div className="p-1 rounded-full bg-memorial-primary/20">
-                      <Award className="h-4 w-4 text-memorial-primary" />
+            
+            {/* Slideshow */}
+            <div className="relative">
+              <Card className={`p-6 space-y-4 transition-all duration-500 ${
+                memories[currentSlideIndex]?.isAchievement 
+                  ? 'border-memorial-primary/30 bg-gradient-to-br from-memorial-primary/5 to-memorial-accent/5' 
+                  : ''
+              }`}>
+                {memories[currentSlideIndex]?.isAchievement && (
+                  <div className="absolute top-4 right-4">
+                    <div className="p-2 rounded-full bg-memorial-primary/20">
+                      <Award className="h-5 w-5 text-memorial-primary" />
                     </div>
                   </div>
                 )}
-                <div className="flex items-center gap-3">
-                  <Avatar className="w-8 h-8">
+                
+                <div className="flex items-center gap-4">
+                  <Avatar className="w-12 h-12">
                     <AvatarImage src={samplePortrait} />
-                    <AvatarFallback>NVM</AvatarFallback>
+                    <AvatarFallback>MJ</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <p className="font-medium">Nguyễn Văn Minh</p>
-                    <p className="text-sm text-muted-foreground">{memory.date}</p>
-                    {memory.isAchievement && memory.achievementTitle && (
-                      <p className="text-sm font-semibold text-memorial-primary mt-1">
-                        🏆 {memory.achievementTitle}
+                    <p className="font-semibold text-lg">Michael Jackson</p>
+                    <p className="text-muted-foreground">{memories[currentSlideIndex]?.date}</p>
+                    {memories[currentSlideIndex]?.isAchievement && memories[currentSlideIndex]?.achievementTitle && (
+                      <p className="text-memorial-primary font-semibold mt-1 flex items-center gap-1">
+                        <Star className="h-4 w-4" />
+                        {memories[currentSlideIndex]?.achievementTitle}
                       </p>
                     )}
                   </div>
                 </div>
-                <img src={memory.image} alt="Memory" className="w-full rounded-lg" />
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <Button variant="ghost" size="sm" className="p-0 h-auto">
-                    <Heart className="h-4 w-4 mr-1" />
-                    Yêu thương
-                  </Button>
-                  <Button variant="ghost" size="sm" className="p-0 h-auto">
-                    <MessageCircle className="h-4 w-4 mr-1" />
-                    Bình luận
-                  </Button>
+                
+                <img 
+                  src={memories[currentSlideIndex]?.image} 
+                  alt="Memory" 
+                  className="w-full rounded-lg max-h-80 object-cover" 
+                />
+                
+                {memories[currentSlideIndex]?.content && (
+                  <p className="text-foreground leading-relaxed">
+                    {memories[currentSlideIndex].content}
+                  </p>
+                )}
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <Button variant="ghost" size="sm" className="p-0 h-auto">
+                      <Heart className="h-4 w-4 mr-1" />
+                      Love
+                    </Button>
+                    <Button variant="ghost" size="sm" className="p-0 h-auto">
+                      <MessageCircle className="h-4 w-4 mr-1" />
+                      Comment
+                    </Button>
+                    <Button variant="ghost" size="sm" className="p-0 h-auto">
+                      <Share2 className="h-4 w-4 mr-1" />
+                      Share
+                    </Button>
+                  </div>
                 </div>
               </Card>
-            ))}
+              
+              {/* Manual navigation */}
+              <div className="flex justify-center gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentSlideIndex((prev) => (prev - 1 + memories.length) % memories.length)}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % memories.length)}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+              
+              {/* Dots indicator */}
+              <div className="flex justify-center gap-1 mt-3">
+                {memories.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      index === currentSlideIndex ? 'bg-memorial-primary' : 'bg-gray-300'
+                    }`}
+                    onClick={() => setCurrentSlideIndex(index)}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
         {activeTab === "story" && (
           <Card className="p-6 space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold text-foreground">Câu chuyện cuộc đời</h3>
+              <h3 className="text-xl font-bold text-foreground">The King's Journey</h3>
               <Button
                 variant="outline"
                 size="sm"
@@ -353,21 +501,25 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                 className="text-memorial-primary border-memorial-primary/30"
               >
                 <Edit2 className="h-4 w-4 mr-1" />
-                Chỉnh sửa
+                Edit
               </Button>
             </div>
             <div className="space-y-4 text-foreground leading-relaxed">
               <p>
-                Nguyễn Văn Minh sinh năm 1960 tại một gia đình nông dân nghèo ở Hà Nội. 
-                Từ nhỏ, ông đã thể hiện tài năng đặc biệt về hội họa và âm nhạc.
+                Michael Joseph Jackson was born on August 29, 1958, in Gary, Indiana. From the tender age of five, 
+                he captivated audiences as the lead singer of the Jackson 5, showing a talent that was nothing short of extraordinary.
               </p>
               <p>
-                Sau khi tốt nghiệp Đại học Mỹ thuật, ông đã dành cả cuộc đời để giảng dạy 
-                và truyền đạt tình yêu nghệ thuật cho thế hệ trẻ.
+                His solo career launched him into the stratosphere of global fame. The 1982 album "Thriller" became the 
+                best-selling album of all time, featuring iconic tracks like "Billie Jean," "Beat It," and the title track "Thriller."
               </p>
               <p>
-                Là một người cha tuyệt vời, ông luôn ở bên cạnh gia đình trong mọi hoàn cảnh. 
-                Tình yêu thương và sự hy sinh của ông sẽ mãi mãi được con cháu ghi nhớ.
+                Beyond his musical genius, Michael was a humanitarian who used his platform to spread messages of love, 
+                unity, and healing. His contributions to music, dance, and fashion continue to influence artists worldwide.
+              </p>
+              <p>
+                Though he left us too soon on June 25, 2009, his legacy lives on in every moonwalk, every "hee-hee," 
+                and in the hearts of millions who were touched by his artistry and compassion.
               </p>
             </div>
           </Card>
@@ -376,7 +528,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         {activeTab === "persona" && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-foreground">Chân dung nhân cách</h3>
+              <h3 className="font-semibold text-foreground">Michael's Legacy</h3>
               <Button
                 variant="outline"
                 size="sm"
@@ -384,7 +536,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                 className="text-memorial-primary border-memorial-primary/30"
               >
                 <Edit2 className="h-4 w-4 mr-1" />
-                Quản lý
+                Manage
               </Button>
             </div>
             
@@ -394,28 +546,44 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                   <div className="p-2 rounded-full bg-memorial-primary/10">
                     <Heart className="h-5 w-5 text-memorial-primary" />
                   </div>
-                  <h4 className="font-semibold text-foreground">Tính cách</h4>
+                  <h4 className="font-semibold text-foreground">Personality</h4>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">• Hài hước, dí dỏm</p>
-                  <p className="text-sm text-muted-foreground">• Luôn quan tâm đến mọi người</p>
-                  <p className="text-sm text-muted-foreground">• Nóng tính nhưng rất mau quên</p>
-                  <p className="text-sm text-muted-foreground">• Trách nhiệm và đáng tin cậy</p>
+                  <p className="text-sm text-muted-foreground">• Gentle and kind-hearted soul</p>
+                  <p className="text-sm text-muted-foreground">• Perfectionist in his craft</p>
+                  <p className="text-sm text-muted-foreground">• Deeply empathetic and caring</p>
+                  <p className="text-sm text-muted-foreground">• Child-like wonder and curiosity</p>
+                  <p className="text-sm text-muted-foreground">• Dedicated to healing the world</p>
                 </div>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 rounded-full bg-memorial-primary/10">
-                    <Award className="h-5 w-5 text-memorial-primary" />
+                    <Music className="h-5 w-5 text-memorial-primary" />
                   </div>
-                  <h4 className="font-semibold text-foreground">Thành tựu nổi bật</h4>
+                  <h4 className="font-semibold text-foreground">Musical Genius</h4>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">• Giải nhất học sinh giỏi Văn cấp thành phố 1980</p>
-                  <p className="text-sm text-muted-foreground">• Xây dựng thành công trường THPT Nghệ thuật</p>
-                  <p className="text-sm text-muted-foreground">• Nuôi dạy 3 người con thành tài</p>
-                  <p className="text-sm text-muted-foreground">• Đào tạo hàng nghìn học sinh</p>
+                  <p className="text-sm text-muted-foreground">• Master of Pop, R&B, Soul, and Rock</p>
+                  <p className="text-sm text-muted-foreground">• Innovative producer and songwriter</p>
+                  <p className="text-sm text-muted-foreground">• Revolutionary music video creator</p>
+                  <p className="text-sm text-muted-foreground">• Influenced countless artists worldwide</p>
+                </div>
+              </Card>
+
+              <Card className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-full bg-memorial-primary/10">
+                    <Globe className="h-5 w-5 text-memorial-primary" />
+                  </div>
+                  <h4 className="font-semibold text-foreground">Dance Innovation</h4>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">• Creator of the legendary Moonwalk</p>
+                  <p className="text-sm text-muted-foreground">• Anti-gravity lean technique</p>
+                  <p className="text-sm text-muted-foreground">• Smooth Criminal signature moves</p>
+                  <p className="text-sm text-muted-foreground">• Fusion of various dance styles</p>
                 </div>
               </Card>
 
@@ -424,13 +592,13 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                   <div className="p-2 rounded-full bg-memorial-primary/10">
                     <Heart className="h-5 w-5 text-memorial-primary" />
                   </div>
-                  <h4 className="font-semibold text-foreground">Sở thích</h4>
+                  <h4 className="font-semibold text-foreground">Personal Interests</h4>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">• Hội họa và vẽ tranh phong cảnh</p>
-                  <p className="text-sm text-muted-foreground">• Nghe nhạc cổ điển</p>
-                  <p className="text-sm text-muted-foreground">• Đọc sách văn học</p>
-                  <p className="text-sm text-muted-foreground">• Làm vườn vào cuối tuần</p>
+                  <p className="text-sm text-muted-foreground">• Love for children and animals</p>
+                  <p className="text-sm text-muted-foreground">• Art collecting and appreciation</p>
+                  <p className="text-sm text-muted-foreground">• Studying great entertainers</p>
+                  <p className="text-sm text-muted-foreground">• Theme park enthusiast</p>
                 </div>
               </Card>
             </div>
@@ -466,6 +634,46 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
           onSave={handleAddMilestone}
         />
       )}
+
+      {/* QR Code Dialog */}
+      <Dialog open={showQRCode} onOpenChange={setShowQRCode}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Share Michael Jackson's Profile</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-4 p-6">
+            <div className="w-48 h-48 bg-white rounded-lg p-4 border">
+              <img 
+                src={generateQRCode()} 
+                alt="QR Code" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <p className="text-sm text-muted-foreground text-center">
+              Scan this QR code to visit Michael Jackson's memorial profile
+            </p>
+            <div className="flex gap-2 w-full">
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                }}
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Copy Link
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1"
+                onClick={() => setShowQRCode(false)}
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
