@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ArrowLeft, MoreHorizontal, MessageCircle, Phone, Heart, Users, Calendar, Award, GraduationCap, Briefcase, ChevronRight, Plus, Edit2, QrCode, Share2, Music, Star, Globe, ChevronLeft } from "lucide-react";
+import { ArrowLeft, MoreHorizontal, MessageCircle, Phone, Heart, Users, Calendar, Award, GraduationCap, Briefcase, ChevronRight, Plus, Edit2, QrCode, Share2, Star, Globe, ChevronLeft, Building2, Code2, Handshake, Send, TrendingUp } from "lucide-react";
 import AddMemoryFlow from "./AddMemoryFlow";
 import PersonaManager from "./PersonaManager";
 import TimelineEditor from "./TimelineEditor";
@@ -9,17 +9,25 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import mjPortrait from "@/assets/mj-portrait.jpg";
-import mjMemory1 from "@/assets/mj-memory-1.jpg";
-import mjMemory2 from "@/assets/mj-memory-2.jpg";
-import mjMemory3 from "@/assets/mj-memory-3.jpg";
-import mjMemory4 from "@/assets/mj-memory-4.jpg";
-import mjMemory5 from "@/assets/mj-memory-5.jpg";
-import mjMemory6 from "@/assets/mj-memory-6.jpg";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import hoangPortrait from "@/assets/hoang-nam-tien-portrait.jpg";
+import fptOffice1 from "@/assets/fpt-office-1.jpg";
+import fptSoftware2 from "@/assets/fpt-software-2.jpg";
+import graduationMemory from "@/assets/graduation-memory.jpg";
+import fptTelecom3 from "@/assets/fpt-telecom-3.jpg";
+import globalBusiness4 from "@/assets/global-business-4.jpg";
 
 interface MemorialProfileProps {
   onOpenChat: () => void;
   onOpenCall: () => void;
+}
+
+interface Condolence {
+  id: number;
+  name: string;
+  message: string;
+  timestamp: Date;
 }
 
 const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
@@ -29,90 +37,99 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   const [showPersonaManager, setShowPersonaManager] = useState(false);
   const [showTimelineEditor, setShowTimelineEditor] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [showCondolenceForm, setShowCondolenceForm] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [showExpandedAchievements, setShowExpandedAchievements] = useState(false);
+  const [condolenceName, setCondolenceName] = useState("");
+  const [condolenceMessage, setCondolenceMessage] = useState("");
+  const [condolences, setCondolences] = useState<Condolence[]>([
+    { id: 1, name: "Nguyễn Văn An", message: "Một lãnh đạo tài ba, người thầy đã truyền cảm hứng cho nhiều thế hệ.", timestamp: new Date('2025-08-01') },
+    { id: 2, name: "Trần Thị Hoa", message: "Ông là biểu tượng của sự đổi mới và tầm nhìn xa trong ngành công nghệ.", timestamp: new Date('2025-08-01') },
+    { id: 3, name: "Lê Minh Tuấn", message: "Những đóng góp của ông cho FPT và ngành IT Việt Nam sẽ mãi được ghi nhớ.", timestamp: new Date('2025-08-02') },
+    { id: 4, name: "Phạm Thu Trang", message: "Người lãnh đạo tài ba với tâm hồn nhân ái, luôn quan tâm đến nhân viên.", timestamp: new Date('2025-08-02') }
+  ]);
   const achievementsRef = useRef<HTMLDivElement>(null);
 
   const achievements = [
     {
       id: 1,
-      icon: Music,
-      title: "King of Pop",
-      description: "Biểu tượng âm nhạc toàn cầu, người thay đổi nền công nghiệp giải trí",
-      type: "music",
-      year: "1970s-2009"
+      icon: Building2,
+      title: "Chủ tịch FPT Software",
+      description: "Dẫn dắt FPT Software 'Go Global', tăng trưởng >30%/năm",
+      type: "leadership",
+      year: "2011-2020"
     },
     {
       id: 2,
-      icon: Award,
-      title: "13 Grammy Awards",
-      description: "Đoạt giải Grammy nhiều nhất trong sự nghiệp solo",
+      icon: TrendingUp,
+      title: "Doanh thu 1 tỷ USD",
+      description: "Đạt mốc doanh thu 1 tỷ USD tại FPT Distribution năm 2008",
       type: "achievement",
-      year: "1984-1996"
+      year: "2008"
     },
     {
       id: 3,
-      icon: Star,
-      title: "Album Thriller",
-      description: "Album bán chạy nhất mọi thời đại với 66 triệu bản trên toàn thế giới",
+      icon: Globe,
+      title: "Fortune 500 Partners",
+      description: "Hợp tác với hàng trăm tập đoàn Fortune 500 trên toàn cầu",
       type: "milestone",
-      year: "1982"
+      year: "2015-2020"
     },
     {
       id: 4,
-      icon: Globe,
-      title: "Moonwalk Dance",
-      description: "Tạo ra điệu nhảy iconic làm say mê hàng triệu người hâm mộ",
+      icon: Award,
+      title: "Chủ tịch FPT Telecom",
+      description: "Lãi kỷ lục hơn 1.900 tỷ đồng năm 2021",
       type: "innovation",
-      year: "1983"
+      year: "2020-2023"
     },
     {
       id: 5,
-      icon: Heart,
-      title: "Humanitarian Work",
-      description: "Từ thiện cho 39 tổ chức, quyên góp hơn 300 triệu USD",
-      type: "charity",
-      year: "1980-2009"
+      icon: GraduationCap,
+      title: "Giáo dục Đại học",
+      description: "Phó Chủ tịch Hội đồng trường ĐH FPT, phụ trách sau đại học",
+      type: "education",
+      year: "2023-2025"
     },
     {
       id: 6,
-      icon: Star,
-      title: "Rock & Roll Hall of Fame",
-      description: "Được vinh danh 2 lần: cùng Jackson 5 và sự nghiệp solo",
-      type: "honor",
-      year: "1997, 2001"
+      icon: Code2,
+      title: "Kỹ sư CNTT",
+      description: "Tốt nghiệp Đại học Bách khoa Hà Nội, chuyên ngành CNTT",
+      type: "foundation",
+      year: "1993"
     },
     {
       id: 7,
-      icon: Music,
-      title: "MTV Video Music Awards",
-      description: "Nhận được Video Vanguard Award và nhiều giải thưởng khác",
-      type: "recognition",
-      year: "1988"
+      icon: Handshake,
+      title: "Tư duy đổi mới",
+      description: "Triết lý 'Nghĩ khác, làm khác' - luôn tìm kiếm sự khác biệt",
+      type: "philosophy",
+      year: "1993-2025"
     },
     {
       id: 8,
-      icon: Globe,
-      title: "Global Icon",
-      description: "Ảnh hưởng văn hóa vượt qua biên giới, tạo cảm hứng cho hàng triệu người",
+      icon: Heart,
+      title: "Lãnh đạo truyền cảm hứng",
+      description: "Diễn giả được yêu thích, truyền cảm hứng cho thế hệ trẻ",
       type: "legacy",
-      year: "1958-2009"
+      year: "2000-2025"
     }
   ];
 
   const [memories, setMemories] = useState([
-    { id: 1, image: mjMemory1, type: "photo", date: "2009-06-25", isAchievement: true, achievementTitle: "This Is It rehearsals", content: "Final rehearsals for the comeback tour that would have been legendary" },
-    { id: 2, image: mjMemory2, type: "video", date: "1983-05-16", isAchievement: true, achievementTitle: "First Moonwalk on TV", content: "Motown 25th anniversary special - the moment that changed everything" },
-    { id: 3, image: mjMemory3, type: "photo", date: "1982-11-30", isAchievement: true, achievementTitle: "Thriller Album Release", content: "The album that would become the best-selling album of all time" },
-    { id: 4, image: mjMemory4, type: "photo", date: "1988-01-01", isAchievement: false, content: "Recording sessions during Bad era" },
-    { id: 5, image: mjMemory5, type: "video", date: "1995-06-15", isAchievement: true, achievementTitle: "HIStory Album", content: "Double album featuring greatest hits and new material" },
-    { id: 6, image: mjMemory6, type: "photo", date: "2001-10-30", isAchievement: false, content: "Behind the scenes during music video production" },
-    { id: 7, image: mjMemory1, type: "photo", date: "1987-03-12", isAchievement: false, content: "Studio work on Bad album" },
-    { id: 8, image: mjMemory2, type: "photo", date: "1984-07-05", isAchievement: true, achievementTitle: "Victory Tour", content: "Reunion tour with Jackson 5 brothers" },
-    { id: 9, image: mjMemory3, type: "video", date: "1991-11-14", isAchievement: true, achievementTitle: "Black or White premiere", content: "Groundbreaking music video with morphing technology" },
-    { id: 10, image: mjMemory4, type: "photo", date: "1996-05-20", isAchievement: false, content: "Charity work and humanitarian efforts" },
-    { id: 11, image: mjMemory5, type: "photo", date: "1993-02-01", isAchievement: true, achievementTitle: "Super Bowl XXVII", content: "Historic halftime show performance" },
-    { id: 12, image: mjMemory6, type: "video", date: "1979-12-18", isAchievement: false, content: "Early solo career moments" },
+    { id: 1, image: hoangPortrait, type: "photo", date: "2023-04-15", isAchievement: true, achievementTitle: "Phó Chủ tịch ĐH FPT", content: "Đảm nhiệm vị trí Phó Chủ tịch Hội đồng trường Đại học FPT" },
+    { id: 2, image: fptOffice1, type: "photo", date: "2020-01-10", isAchievement: true, achievementTitle: "Chủ tịch FPT Telecom", content: "Bắt đầu hành trình dẫn dắt FPT Telecom đạt những thành tựu mới" },
+    { id: 3, image: fptSoftware2, type: "photo", date: "2011-03-20", isAchievement: true, achievementTitle: "Chủ tịch FPT Software", content: "Khởi đầu chiến lược Go Global của FPT Software" },
+    { id: 4, image: graduationMemory, type: "photo", date: "1993-07-15", isAchievement: true, achievementTitle: "Tốt nghiệp Bách khoa", content: "Tốt nghiệp Kỹ sư Công nghệ thông tin, ĐH Bách khoa Hà Nội" },
+    { id: 5, image: fptTelecom3, type: "photo", date: "2021-12-31", isAchievement: true, achievementTitle: "Kỷ lục lợi nhuận", content: "FPT Telecom đạt lãi kỷ lục hơn 1.900 tỷ đồng" },
+    { id: 6, image: globalBusiness4, type: "photo", date: "2018-06-10", isAchievement: false, content: "Hội nghị với đối tác Fortune 500" },
+    { id: 7, image: fptOffice1, type: "photo", date: "2008-11-30", isAchievement: true, achievementTitle: "Mốc 1 tỷ USD", content: "FPT Distribution đạt doanh thu 1 tỷ USD" },
+    { id: 8, image: fptSoftware2, type: "video", date: "2015-09-05", isAchievement: false, content: "Buổi chia sẻ với nhân viên về tầm nhìn Go Global" },
+    { id: 9, image: graduationMemory, type: "photo", date: "2019-05-20", isAchievement: false, content: "Phát biểu tại lễ tốt nghiệp của sinh viên" },
+    { id: 10, image: fptTelecom3, type: "photo", date: "2016-03-14", isAchievement: false, content: "Thăm và làm việc tại các chi nhánh" },
+    { id: 11, image: globalBusiness4, type: "photo", date: "2017-08-22", isAchievement: false, content: "Gặp gỡ và thảo luận với khách hàng quốc tế" },
+    { id: 12, image: hoangPortrait, type: "photo", date: "2025-07-30", isAchievement: false, content: "Những khoảnh khắc cuối cùng bên gia đình" },
   ]);
 
   // Auto slideshow for timeline
@@ -126,14 +143,13 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   }, [activeTab, memories.length]);
 
   const generateQRCode = () => {
-    // In a real app, this would generate an actual QR code
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='white'/%3E%3Ctext x='50' y='50' text-anchor='middle' font-size='8'%3EMJ Profile%3C/text%3E%3C/svg%3E";
+    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='white'/%3E%3Ctext x='50' y='50' text-anchor='middle' font-size='6'%3EHoàng Nam Tiến%3C/text%3E%3C/svg%3E";
   };
 
   const handleAddMemory = (memory: any) => {
     const newMemory = {
       ...memory,
-      image: memory.files[0] ? URL.createObjectURL(memory.files[0]) : mjMemory1
+      image: memory.files[0] ? URL.createObjectURL(memory.files[0]) : hoangPortrait
     };
     setMemories([newMemory, ...memories]);
   };
@@ -141,7 +157,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   const handleAddMilestone = (milestone: any) => {
     const newMemory = {
       id: milestone.id,
-      image: milestone.files[0] ? URL.createObjectURL(milestone.files[0]) : mjMemory1,
+      image: milestone.files[0] ? URL.createObjectURL(milestone.files[0]) : hoangPortrait,
       type: "milestone",
       date: milestone.date,
       isAchievement: milestone.isAchievement,
@@ -150,6 +166,21 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
       content: milestone.content
     };
     setMemories([newMemory, ...memories]);
+  };
+
+  const handleSendCondolence = () => {
+    if (condolenceName.trim() && condolenceMessage.trim()) {
+      const newCondolence: Condolence = {
+        id: condolences.length + 1,
+        name: condolenceName.trim(),
+        message: condolenceMessage.trim(),
+        timestamp: new Date()
+      };
+      setCondolences([newCondolence, ...condolences]);
+      setCondolenceName("");
+      setCondolenceMessage("");
+      setShowCondolenceForm(false);
+    }
   };
 
   const scrollToAchievements = () => {
@@ -164,7 +195,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2">
-          <h1 className="text-lg font-semibold text-foreground">Michael Jackson</h1>
+          <h1 className="text-lg font-semibold text-foreground">Hoàng Nam Tiến</h1>
           <Button 
             variant="ghost" 
             size="icon" 
@@ -192,34 +223,35 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
       <div className="px-6 py-8">
         <div className="flex flex-col items-center space-y-4">
           <Avatar className="w-32 h-32 border-4 border-memorial-primary/20">
-            <AvatarImage src={mjPortrait} alt="Michael Jackson" />
-            <AvatarFallback>MJ</AvatarFallback>
+            <AvatarImage src={hoangPortrait} alt="Hoàng Nam Tiến" />
+            <AvatarFallback>HNT</AvatarFallback>
           </Avatar>
           
           <div className="text-center space-y-2">
-            <h2 className="text-2xl font-bold text-foreground">Michael Jackson</h2>
+            <h2 className="text-2xl font-bold text-foreground">Hoàng Nam Tiến</h2>
             <p className="text-muted-foreground flex items-center justify-center gap-2">
               <Calendar className="h-4 w-4" />
-              August 29, 1958 - June 25, 2009
+              28/06/1969 - 31/07/2025
             </p>
             <p className="text-center max-w-sm text-muted-foreground leading-relaxed">
-              The King of Pop. A musical genius who touched millions of hearts and changed the world forever through his art, dance, and humanitarian spirit.
+              Lãnh đạo kỳ cựu FPT, người thuyền trưởng đưa công nghệ Việt Nam vươn ra thế giới. 
+              Một nhà lãnh đạo tài ba với tầm nhìn xa và trái tim nhân ái.
             </p>
           </div>
 
           {/* Stats */}
           <div className="flex gap-8 text-center">
             <div className="space-y-1">
-              <p className="text-xl font-bold text-foreground">750M+</p>
-              <p className="text-sm text-muted-foreground">Albums Sold</p>
+              <p className="text-xl font-bold text-foreground">30+</p>
+              <p className="text-sm text-muted-foreground">Năm FPT</p>
             </div>
             <div className="space-y-1">
-              <p className="text-xl font-bold text-foreground">1.2B</p>
-              <p className="text-sm text-muted-foreground">Fans Worldwide</p>
+              <p className="text-xl font-bold text-foreground">500+</p>
+              <p className="text-sm text-muted-foreground">Fortune 500</p>
             </div>
             <div className="space-y-1">
               <p className="text-xl font-bold text-foreground">∞</p>
-              <p className="text-sm text-muted-foreground">Eternal Love</p>
+              <p className="text-sm text-muted-foreground">Kỷ niệm</p>
             </div>
           </div>
 
@@ -230,7 +262,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
               className="bg-memorial-primary hover:bg-memorial-primary/90 text-primary-foreground px-6 py-3 rounded-full"
             >
               <MessageCircle className="h-4 w-4 mr-2" />
-              Talk to the King
+              Trò chuyện với ông Tiến
             </Button>
             
             {showAIMenu && (
@@ -244,7 +276,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                   }}
                 >
                   <MessageCircle className="h-4 w-4 mr-2" />
-                  Chat
+                  Nhắn tin
                 </Button>
                 <Button
                   variant="ghost"
@@ -255,7 +287,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                   }}
                 >
                   <Phone className="h-4 w-4 mr-2" />
-                  Call
+                  Gọi điện
                 </Button>
               </Card>
             )}
@@ -263,10 +295,44 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         </div>
       </div>
 
+      {/* Condolences Section */}
+      <div className="px-6 py-6 bg-card/30">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="text-center">
+              <h3 className="text-lg font-bold text-foreground">Lời Chia Buồn</h3>
+              <p className="text-memorial-primary font-semibold">{condolences.length} lời chia buồn</p>
+            </div>
+            <Button
+              onClick={() => setShowCondolenceForm(true)}
+              className="bg-memorial-primary/10 hover:bg-memorial-primary/20 text-memorial-primary border border-memorial-primary/20"
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Gửi lời chia buồn
+            </Button>
+          </div>
+          
+          {/* Condolence Bubbles */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-40 overflow-y-auto">
+            {condolences.map((condolence) => (
+              <div key={condolence.id} className="bg-memorial-primary/5 border border-memorial-primary/10 rounded-lg p-3 space-y-2">
+                <div className="flex justify-between items-start">
+                  <p className="font-semibold text-sm text-foreground">{condolence.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {condolence.timestamp.toLocaleDateString('vi-VN')}
+                  </p>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">{condolence.message}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Featured Achievements - Expanded */}
       <div ref={achievementsRef} className="px-6 py-6 bg-card/30">
         <div className="space-y-6">
-          <h3 className="text-2xl font-bold text-foreground text-center">Legendary Achievements</h3>
+          <h3 className="text-2xl font-bold text-foreground text-center">Hành Trình Tự Hào</h3>
           
           {!showExpandedAchievements ? (
             // Collapsed view - show 4 in grid
@@ -319,9 +385,9 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
               onClick={() => setShowExpandedAchievements(!showExpandedAchievements)}
             >
               {showExpandedAchievements ? (
-                <>Show Less <ChevronLeft className="h-4 w-4 ml-1" /></>
+                <>Thu gọn <ChevronLeft className="h-4 w-4 ml-1" /></>
               ) : (
-                <>Show All {achievements.length} <ChevronRight className="h-4 w-4 ml-1" /></>
+                <>Xem tất cả {achievements.length} <ChevronRight className="h-4 w-4 ml-1" /></>
               )}
             </Button>
           </div>
@@ -336,28 +402,28 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
             className={`flex-1 pb-3 ${activeTab === "grid" ? "border-b-2 border-memorial-primary" : ""}`}
             onClick={() => setActiveTab("grid")}
           >
-            Gallery
+            Thư viện
           </Button>
           <Button
             variant="ghost"
             className={`flex-1 pb-3 ${activeTab === "timeline" ? "border-b-2 border-memorial-primary" : ""}`}
             onClick={() => setActiveTab("timeline")}
           >
-            Timeline
+            Dòng thời gian
           </Button>
           <Button
             variant="ghost"
             className={`flex-1 pb-3 ${activeTab === "story" ? "border-b-2 border-memorial-primary" : ""}`}
             onClick={() => setActiveTab("story")}
           >
-            Life Story
+            Câu chuyện đời
           </Button>
           <Button
             variant="ghost"
             className={`flex-1 pb-3 ${activeTab === "persona" ? "border-b-2 border-memorial-primary" : ""}`}
             onClick={() => setActiveTab("persona")}
           >
-            Legacy
+            Chân dung
           </Button>
         </div>
       </div>
@@ -386,7 +452,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         {activeTab === "timeline" && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-foreground">Timeline Slideshow</h3>
+              <h3 className="font-semibold text-foreground">Slideshow Dòng Thời Gian</h3>
               <div className="flex gap-2">
                 <div className="text-xs text-muted-foreground">
                   {currentSlideIndex + 1} / {memories.length}
@@ -398,7 +464,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                   className="text-memorial-primary border-memorial-primary/30"
                 >
                   <Plus className="h-4 w-4 mr-1" />
-                  Add Moment
+                  Thêm khoảnh khắc
                 </Button>
               </div>
             </div>
@@ -420,11 +486,11 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                 
                 <div className="flex items-center gap-4">
                   <Avatar className="w-12 h-12">
-                    <AvatarImage src={mjPortrait} />
-                    <AvatarFallback>MJ</AvatarFallback>
+                    <AvatarImage src={hoangPortrait} />
+                    <AvatarFallback>HNT</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <p className="font-semibold text-lg">Michael Jackson</p>
+                    <p className="font-semibold text-lg">Hoàng Nam Tiến</p>
                     <p className="text-muted-foreground">{memories[currentSlideIndex]?.date}</p>
                     {memories[currentSlideIndex]?.isAchievement && memories[currentSlideIndex]?.achievementTitle && (
                       <p className="text-memorial-primary font-semibold mt-1 flex items-center gap-1">
@@ -451,15 +517,15 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                   <div className="flex items-center gap-4 text-sm text-muted-foreground">
                     <Button variant="ghost" size="sm" className="p-0 h-auto">
                       <Heart className="h-4 w-4 mr-1" />
-                      Love
+                      Yêu thích
                     </Button>
                     <Button variant="ghost" size="sm" className="p-0 h-auto">
                       <MessageCircle className="h-4 w-4 mr-1" />
-                      Comment
+                      Bình luận
                     </Button>
                     <Button variant="ghost" size="sm" className="p-0 h-auto">
                       <Share2 className="h-4 w-4 mr-1" />
-                      Share
+                      Chia sẻ
                     </Button>
                   </div>
                 </div>
@@ -502,7 +568,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         {activeTab === "story" && (
           <Card className="p-6 space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold text-foreground">The King's Journey</h3>
+              <h3 className="text-xl font-bold text-foreground">Hành Trình Cuộc Đời</h3>
               <Button
                 variant="outline"
                 size="sm"
@@ -510,25 +576,26 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                 className="text-memorial-primary border-memorial-primary/30"
               >
                 <Edit2 className="h-4 w-4 mr-1" />
-                Edit
+                Chỉnh sửa
               </Button>
             </div>
             <div className="space-y-4 text-foreground leading-relaxed">
               <p>
-                Michael Joseph Jackson was born on August 29, 1958, in Gary, Indiana. From the tender age of five, 
-                he captivated audiences as the lead singer of the Jackson 5, showing a talent that was nothing short of extraordinary.
+                <strong>Gia thế và tuổi thơ:</strong> Ông Hoàng Nam Tiến sinh ngày 28/06/1969 tại Nghệ An, 
+                trong gia đình có truyền thống cách mạng. Cha ông là Thiếu tướng Hoàng Đan, mẹ là bà Nguyễn Thị An Vinh, 
+                nguyên Phó Giám đốc Sở Ngoại thương Hà Nội.
               </p>
               <p>
-                His solo career launched him into the stratosphere of global fame. The 1982 album "Thriller" became the 
-                best-selling album of all time, featuring iconic tracks like "Billie Jean," "Beat It," and the title track "Thriller."
+                <strong>Học vấn và khởi đầu sự nghiệp:</strong> Tốt nghiệp Kỹ sư Công nghệ thông tin tại Đại học Bách khoa Hà Nội năm 1993, 
+                ông gia nhập FPT ngay sau khi tốt nghiệp và bắt đầu hành trình sự nghiệp kéo dài hơn 3 thập kỷ.
               </p>
               <p>
-                Beyond his musical genius, Michael was a humanitarian who used his platform to spread messages of love, 
-                unity, and healing. His contributions to music, dance, and fashion continue to influence artists worldwide.
+                <strong>Thành tựu nổi bật:</strong> Từ một kỹ sư trẻ, ông đã vươn lên những vị trí lãnh đạo quan trọng nhất của FPT. 
+                Đặc biệt, dưới sự lãnh đạo của ông, FPT Software đã "Go Global" và trở thành đối tác của hàng trăm tập đoàn Fortune 500.
               </p>
               <p>
-                Though he left us too soon on June 25, 2009, his legacy lives on in every moonwalk, every "hee-hee," 
-                and in the hearts of millions who were touched by his artistry and compassion.
+                <strong>Triết lý và di sản:</strong> Với triết lý "Nghĩ khác, làm khác" và tâm niệm "làm khách hàng hạnh phúc", 
+                ông đã để lại dấu ấn sâu đậm trong ngành công nghệ Việt Nam và truyền cảm hứng cho hàng nghìn nhân viên cũng như thế hệ trẻ.
               </p>
             </div>
           </Card>
@@ -537,7 +604,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         {activeTab === "persona" && (
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="font-semibold text-foreground">Michael's Legacy</h3>
+              <h3 className="font-semibold text-foreground">Chân Dung Ông Tiến</h3>
               <Button
                 variant="outline"
                 size="sm"
@@ -545,7 +612,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                 className="text-memorial-primary border-memorial-primary/30"
               >
                 <Edit2 className="h-4 w-4 mr-1" />
-                Manage
+                Quản lý
               </Button>
             </div>
             
@@ -555,59 +622,59 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                   <div className="p-2 rounded-full bg-memorial-primary/10">
                     <Heart className="h-5 w-5 text-memorial-primary" />
                   </div>
-                  <h4 className="font-semibold text-foreground">Personality</h4>
+                  <h4 className="font-semibold text-foreground">Tính cách</h4>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">• Gentle and kind-hearted soul</p>
-                  <p className="text-sm text-muted-foreground">• Perfectionist in his craft</p>
-                  <p className="text-sm text-muted-foreground">• Deeply empathetic and caring</p>
-                  <p className="text-sm text-muted-foreground">• Child-like wonder and curiosity</p>
-                  <p className="text-sm text-muted-foreground">• Dedicated to healing the world</p>
+                  <p className="text-sm text-muted-foreground">• Thẳng thắn, quyết liệt trong công việc</p>
+                  <p className="text-sm text-muted-foreground">• Tư duy đổi mới, không ngại thách thức</p>
+                  <p className="text-sm text-muted-foreground">• Luôn lấy khách hàng làm trung tâm</p>
+                  <p className="text-sm text-muted-foreground">• Quan tâm, chăm sóc nhân viên như gia đình</p>
+                  <p className="text-sm text-muted-foreground">• Có tầm nhìn xa và khả năng truyền cảm hứng</p>
                 </div>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 rounded-full bg-memorial-primary/10">
-                    <Music className="h-5 w-5 text-memorial-primary" />
+                    <Award className="h-5 w-5 text-memorial-primary" />
                   </div>
-                  <h4 className="font-semibold text-foreground">Musical Genius</h4>
+                  <h4 className="font-semibold text-foreground">Thành tựu nghề nghiệp</h4>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">• Master of Pop, R&B, Soul, and Rock</p>
-                  <p className="text-sm text-muted-foreground">• Innovative producer and songwriter</p>
-                  <p className="text-sm text-muted-foreground">• Revolutionary music video creator</p>
-                  <p className="text-sm text-muted-foreground">• Influenced countless artists worldwide</p>
+                  <p className="text-sm text-muted-foreground">• Chủ tịch FPT Software: Chiến lược Go Global thành công</p>
+                  <p className="text-sm text-muted-foreground">• Chủ tịch FPT Telecom: Lãi kỷ lục 1.900 tỷ đồng</p>
+                  <p className="text-sm text-muted-foreground">• Đạt doanh thu 1 tỷ USD tại FPT Distribution</p>
+                  <p className="text-sm text-muted-foreground">• Hợp tác với hàng trăm tập đoàn Fortune 500</p>
                 </div>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 rounded-full bg-memorial-primary/10">
-                    <Globe className="h-5 w-5 text-memorial-primary" />
+                    <GraduationCap className="h-5 w-5 text-memorial-primary" />
                   </div>
-                  <h4 className="font-semibold text-foreground">Dance Innovation</h4>
+                  <h4 className="font-semibold text-foreground">Đóng góp giáo dục</h4>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">• Creator of the legendary Moonwalk</p>
-                  <p className="text-sm text-muted-foreground">• Anti-gravity lean technique</p>
-                  <p className="text-sm text-muted-foreground">• Smooth Criminal signature moves</p>
-                  <p className="text-sm text-muted-foreground">• Fusion of various dance styles</p>
+                  <p className="text-sm text-muted-foreground">• Phó Chủ tịch Hội đồng trường ĐH FPT</p>
+                  <p className="text-sm text-muted-foreground">• Phụ trách đào tạo sau đại học</p>
+                  <p className="text-sm text-muted-foreground">• Nhấn mạnh tầm quan trọng của AI với thế hệ trẻ</p>
+                  <p className="text-sm text-muted-foreground">• Diễn giả truyền cảm hứng được yêu thích</p>
                 </div>
               </Card>
 
               <Card className="p-4">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 rounded-full bg-memorial-primary/10">
-                    <Heart className="h-5 w-5 text-memorial-primary" />
+                    <Star className="h-5 w-5 text-memorial-primary" />
                   </div>
-                  <h4 className="font-semibold text-foreground">Personal Interests</h4>
+                  <h4 className="font-semibold text-foreground">Những câu nói để đời</h4>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">• Love for children and animals</p>
-                  <p className="text-sm text-muted-foreground">• Art collecting and appreciation</p>
-                  <p className="text-sm text-muted-foreground">• Studying great entertainers</p>
-                  <p className="text-sm text-muted-foreground">• Theme park enthusiast</p>
+                  <p className="text-sm text-muted-foreground">• "Nghĩ khác, làm khác"</p>
+                  <p className="text-sm text-muted-foreground">• "Việc này khách hàng được lợi gì?"</p>
+                  <p className="text-sm text-muted-foreground">• "Khách hàng có hài lòng không?"</p>
+                  <p className="text-sm text-muted-foreground">• "Thế hệ trẻ cần làm chủ AI để dẫn dắt tương lai"</p>
                 </div>
               </Card>
             </div>
@@ -644,11 +711,55 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
         />
       )}
 
+      {/* Condolence Form Dialog */}
+      <Dialog open={showCondolenceForm} onOpenChange={setShowCondolenceForm}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Gửi lời chia buồn</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 p-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Tên của bạn</label>
+              <Input
+                value={condolenceName}
+                onChange={(e) => setCondolenceName(e.target.value)}
+                placeholder="Nhập tên của bạn"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Lời chia buồn</label>
+              <Textarea
+                value={condolenceMessage}
+                onChange={(e) => setCondolenceMessage(e.target.value)}
+                placeholder="Chia sẻ những suy nghĩ của bạn về ông Tiến..."
+                rows={4}
+              />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCondolenceForm(false)}
+              >
+                Hủy
+              </Button>
+              <Button 
+                onClick={handleSendCondolence}
+                disabled={!condolenceName.trim() || !condolenceMessage.trim()}
+                className="bg-memorial-primary hover:bg-memorial-primary/90"
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Gửi
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* QR Code Dialog */}
       <Dialog open={showQRCode} onOpenChange={setShowQRCode}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Share Michael Jackson's Profile</DialogTitle>
+            <DialogTitle>Chia sẻ hồ sơ của ông Hoàng Nam Tiến</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center space-y-4 p-6">
             <div className="w-48 h-48 bg-white rounded-lg p-4 border">
@@ -659,7 +770,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
               />
             </div>
             <p className="text-sm text-muted-foreground text-center">
-              Scan this QR code to visit Michael Jackson's memorial profile
+              Quét mã QR này để truy cập hồ sơ tưởng niệm của ông Hoàng Nam Tiến
             </p>
             <div className="flex gap-2 w-full">
               <Button 
@@ -670,14 +781,14 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                 }}
               >
                 <Share2 className="h-4 w-4 mr-2" />
-                Copy Link
+                Sao chép link
               </Button>
               <Button 
                 variant="outline" 
                 className="flex-1"
                 onClick={() => setShowQRCode(false)}
               >
-                Close
+                Đóng
               </Button>
             </div>
           </div>
