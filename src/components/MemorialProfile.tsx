@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import hoangPortrait from "@/assets/hoang-nam-tien-portrait.jpg";
@@ -31,6 +32,7 @@ interface Condolence {
 }
 
 const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("grid");
   const [showAIMenu, setShowAIMenu] = useState(false);
   const [showAddMemory, setShowAddMemory] = useState(false);
@@ -38,6 +40,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
   const [showTimelineEditor, setShowTimelineEditor] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showCondolenceForm, setShowCondolenceForm] = useState(false);
+  const [showAllCondolences, setShowAllCondolences] = useState(false);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [showExpandedAchievements, setShowExpandedAchievements] = useState(false);
   const [condolenceName, setCondolenceName] = useState("");
@@ -46,7 +49,11 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
     { id: 1, name: "Nguyễn Văn An", message: "Một lãnh đạo tài ba, người thầy đã truyền cảm hứng cho nhiều thế hệ.", timestamp: new Date('2025-08-01') },
     { id: 2, name: "Trần Thị Hoa", message: "Ông là biểu tượng của sự đổi mới và tầm nhìn xa trong ngành công nghệ.", timestamp: new Date('2025-08-01') },
     { id: 3, name: "Lê Minh Tuấn", message: "Những đóng góp của ông cho FPT và ngành IT Việt Nam sẽ mãi được ghi nhớ.", timestamp: new Date('2025-08-02') },
-    { id: 4, name: "Phạm Thu Trang", message: "Người lãnh đạo tài ba với tâm hồn nhân ái, luôn quan tâm đến nhân viên.", timestamp: new Date('2025-08-02') }
+    { id: 4, name: "Phạm Thu Trang", message: "Người lãnh đạo tài ba với tâm hồn nhân ái, luôn quan tâm đến nhân viên.", timestamp: new Date('2025-08-02') },
+    { id: 5, name: "Hoàng Minh Đức", message: "Ông đã để lại dấu ấn sâu đậm trong lòng mỗi người làm công nghệ Việt Nam.", timestamp: new Date('2025-08-02') },
+    { id: 6, name: "Phan Thị Lan", message: "Triết lý 'Nghĩ khác, làm khác' của ông sẽ mãi là nguồn cảm hứng cho chúng tôi.", timestamp: new Date('2025-08-03') },
+    { id: 7, name: "Đặng Văn Hùng", message: "Cảm ơn ông đã dành tất cả tâm huyết cho sự phát triển của FPT và đất nước.", timestamp: new Date('2025-08-03') },
+    { id: 8, name: "Vũ Thị Mai", message: "Ông không chỉ là một nhà lãnh đạo xuất sắc mà còn là một con người tốt bụng.", timestamp: new Date('2025-08-03') }
   ]);
   const achievementsRef = useRef<HTMLDivElement>(null);
 
@@ -180,6 +187,13 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
       setCondolenceName("");
       setCondolenceMessage("");
       setShowCondolenceForm(false);
+      
+      // Show success toast
+      toast({
+        title: "Gửi thành công!",
+        description: "Lời chia buồn của bạn đã được gửi và sẽ xuất hiện trong danh sách.",
+        duration: 3000,
+      });
     }
   };
 
@@ -299,7 +313,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
       <div className="px-6 py-6 bg-card/30">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <div className="text-center">
+            <div className="text-center cursor-pointer" onClick={() => setShowAllCondolences(true)}>
               <h3 className="text-lg font-bold text-foreground">Lời Chia Buồn</h3>
               <p className="text-memorial-primary font-semibold">{condolences.length} lời chia buồn</p>
             </div>
@@ -312,9 +326,9 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
             </Button>
           </div>
           
-          {/* Condolence Bubbles */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-40 overflow-y-auto">
-            {condolences.map((condolence) => (
+          {/* Condolence Bubbles - Show only 4 most recent */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-40 overflow-hidden">
+            {condolences.slice(0, 4).map((condolence) => (
               <div key={condolence.id} className="bg-memorial-primary/5 border border-memorial-primary/10 rounded-lg p-3 space-y-2">
                 <div className="flex justify-between items-start">
                   <p className="font-semibold text-sm text-foreground">{condolence.name}</p>
@@ -326,6 +340,18 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
               </div>
             ))}
           </div>
+          
+          {condolences.length > 4 && (
+            <div className="text-center">
+              <Button 
+                variant="ghost" 
+                className="text-memorial-primary hover:bg-memorial-primary/10"
+                onClick={() => setShowAllCondolences(true)}
+              >
+                Xem tất cả {condolences.length} lời chia buồn <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -791,6 +817,77 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
                 Đóng
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* All Condolences Dialog */}
+      <Dialog open={showAllCondolences} onOpenChange={setShowAllCondolences}>
+        <DialogContent className="sm:max-w-2xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-memorial-primary" />
+              Tất cả lời chia buồn ({condolences.length})
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 p-4 max-h-[60vh] overflow-y-auto">
+            {condolences.map((condolence) => (
+              <div key={condolence.id} className="bg-memorial-primary/5 border border-memorial-primary/10 rounded-lg p-4 space-y-3">
+                <div className="flex justify-between items-start">
+                  <h4 className="font-semibold text-foreground">{condolence.name}</h4>
+                  <div className="text-xs text-muted-foreground">
+                    {condolence.timestamp.toLocaleDateString('vi-VN', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </div>
+                </div>
+                <p className="text-muted-foreground leading-relaxed">{condolence.message}</p>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <Heart className="h-3 w-3" />
+                  <span>Được gửi với tình cảm chân thành</span>
+                </div>
+              </div>
+            ))}
+            
+            {condolences.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-muted-foreground">Chưa có lời chia buồn nào.</p>
+                <Button 
+                  onClick={() => {
+                    setShowAllCondolences(false);
+                    setShowCondolenceForm(true);
+                  }}
+                  className="mt-3 bg-memorial-primary/10 hover:bg-memorial-primary/20 text-memorial-primary"
+                >
+                  <Send className="h-4 w-4 mr-2" />
+                  Gửi lời chia buồn đầu tiên
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex gap-2 justify-between items-center p-4 border-t">
+            <Button 
+              variant="outline"
+              onClick={() => {
+                setShowAllCondolences(false);
+                setShowCondolenceForm(true);
+              }}
+              className="text-memorial-primary border-memorial-primary/30"
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Thêm lời chia buồn
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => setShowAllCondolences(false)}
+            >
+              Đóng
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
