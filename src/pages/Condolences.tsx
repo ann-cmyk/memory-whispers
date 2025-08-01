@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ArrowLeft, Heart, Send, MessageCircle, Upload, Share2, Facebook, Twitter, Search, User } from "lucide-react";
+import { ArrowLeft, Heart, Send, MessageCircle, Upload, Share2, Facebook, Twitter, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -31,7 +31,6 @@ const Condolences = () => {
   const [condolenceImage, setCondolenceImage] = useState<File | null>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [lastCondolence, setLastCondolence] = useState<Condolence | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [condolences, setCondolences] = useState<Condolence[]>([
     { 
@@ -170,12 +169,6 @@ const Condolences = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Filter condolences based on search query
-  const filteredCondolences = condolences.filter(condolence =>
-    condolence.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    condolence.message.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="min-h-screen bg-gradient-elegant relative overflow-hidden">
       {/* Header */}
@@ -188,7 +181,7 @@ const Condolences = () => {
         </div>
         <div className="text-center">
           <h1 className="text-lg font-semibold text-foreground">Lời Chia Buồn</h1>
-          <p className="text-sm text-muted-foreground">{filteredCondolences.length} lời chia buồn</p>
+          <p className="text-sm text-muted-foreground">{condolences.length} lời chia buồn</p>
         </div>
         <Button 
           onClick={() => setShowCondolenceForm(true)}
@@ -197,19 +190,6 @@ const Condolences = () => {
           <Send className="h-4 w-4 mr-2" />
           Gửi
         </Button>
-      </div>
-
-      {/* Search Bar */}
-      <div className="px-4 pb-4 relative z-10">
-        <div className="relative max-w-md mx-auto">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Tìm kiếm lời chia buồn..."
-            className="pl-10 bg-card/80 backdrop-blur-sm border-memorial-primary/20"
-          />
-        </div>
       </div>
 
       {/* Memorial Info */}
@@ -227,7 +207,7 @@ const Condolences = () => {
 
       {/* Floating Condolence Bubbles */}
       <div className="absolute inset-0 overflow-hidden">
-        {filteredCondolences.map((condolence) => (
+        {condolences.map((condolence) => (
           <div
             key={condolence.id}
             className="absolute transition-all duration-3000 ease-in-out"
