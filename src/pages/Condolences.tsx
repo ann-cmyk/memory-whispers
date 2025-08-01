@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { ArrowLeft, Heart, Send, MessageCircle } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowLeft, Heart, Send, MessageCircle, Upload, Share2, Facebook, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -19,6 +19,7 @@ interface Condolence {
   y: number;
   size: number;
   opacity: number;
+  image?: string;
 }
 
 const Condolences = () => {
@@ -27,6 +28,10 @@ const Condolences = () => {
   const [showCondolenceForm, setShowCondolenceForm] = useState(false);
   const [condolenceName, setCondolenceName] = useState("");
   const [condolenceMessage, setCondolenceMessage] = useState("");
+  const [condolenceImage, setCondolenceImage] = useState<File | null>(null);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const [lastCondolence, setLastCondolence] = useState<Condolence | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [condolences, setCondolences] = useState<Condolence[]>([
     { 
       id: 1, 
@@ -94,6 +99,13 @@ const Condolences = () => {
     opacity: 0.6 + Math.random() * 0.4 // 0.6-1.0
   });
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setCondolenceImage(file);
+    }
+  };
+
   const handleSendCondolence = () => {
     if (condolenceName.trim() && condolenceMessage.trim()) {
       const position = generateRandomPosition();
@@ -102,11 +114,14 @@ const Condolences = () => {
         name: condolenceName.trim(),
         message: condolenceMessage.trim(),
         timestamp: new Date(),
+        image: condolenceImage ? URL.createObjectURL(condolenceImage) : undefined,
         ...position
       };
       setCondolences([...condolences, newCondolence]);
+      setLastCondolence(newCondolence);
       setCondolenceName("");
       setCondolenceMessage("");
+      setCondolenceImage(null);
       setShowCondolenceForm(false);
       
       toast({
@@ -114,7 +129,30 @@ const Condolences = () => {
         description: "Cảm ơn bạn đã chia sẻ tình cảm chân thành.",
         duration: 3000,
       });
+      
+      // Show share dialog after sending
+      setTimeout(() => setShowShareDialog(true), 1000);
     }
+  };
+
+  const shareToFacebook = () => {
+    const text = encodeURIComponent(`Tôi vừa gửi lời chia buồn cho ông Hoàng Nam Tiến. "${lastCondolence?.message}"`);
+    const url = encodeURIComponent(window.location.origin);
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`, '_blank');
+  };
+
+  const shareToTwitter = () => {
+    const text = encodeURIComponent(`Tôi vừa gửi lời chia buồn cho ông Hoàng Nam Tiến. "${lastCondolence?.message}" ${window.location.origin}`);
+    window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+  };
+
+  const copyLink = () => {
+    navigator.clipboard.writeText(window.location.origin);
+    toast({
+      title: "Đã sao chép liên kết!",
+      description: "Bạn có thể chia sẻ liên kết này với bạn bè.",
+      duration: 2000,
+    });
   };
 
   // Animate bubbles floating
@@ -135,7 +173,7 @@ const Condolences = () => {
     <div className="min-h-screen bg-gradient-elegant relative overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-card/80 backdrop-blur-sm relative z-10">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/profile')}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="text-center">
@@ -196,6 +234,13 @@ const Condolences = () => {
                     : condolence.message
                   }
                 </p>
+                {condolence.image && (
+                  <img 
+                    src={condolence.image} 
+                    alt="Hình ảnh chia buồn" 
+                    className="w-full h-20 object-cover rounded-md mt-2"
+                  />
+                )}
               </div>
             </Card>
           </div>
@@ -236,6 +281,34 @@ const Condolences = () => {
                 rows={4}
               />
             </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Hình ảnh (tùy chọn)</label>
+              <div className="flex items-center gap-2">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {condolenceImage ? condolenceImage.name : "Chọn hình ảnh"}
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </div>
+              {condolenceImage && (
+                <img 
+                  src={URL.createObjectURL(condolenceImage)} 
+                  alt="Preview" 
+                  className="w-full h-32 object-cover rounded-md"
+                />
+              )}
+            </div>
             <div className="flex gap-2 justify-end">
               <Button 
                 variant="outline" 
@@ -252,6 +325,54 @@ const Condolences = () => {
                 Gửi
               </Button>
             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Dialog */}
+      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Share2 className="h-5 w-5 text-memorial-primary" />
+              Chia sẻ lời chia buồn
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 p-4">
+            <p className="text-sm text-muted-foreground text-center">
+              Cảm ơn bạn đã gửi lời chia buồn chân thành. Hãy chia sẻ để lan tỏa tình cảm đến nhiều người hơn.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button 
+                onClick={shareToFacebook}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <Facebook className="h-4 w-4 mr-2" />
+                Facebook
+              </Button>
+              <Button 
+                onClick={shareToTwitter}
+                className="bg-black hover:bg-gray-800 text-white"
+              >
+                <Twitter className="h-4 w-4 mr-2" />
+                Twitter
+              </Button>
+            </div>
+            <Button 
+              onClick={copyLink}
+              variant="outline"
+              className="w-full"
+            >
+              <Share2 className="h-4 w-4 mr-2" />
+              Sao chép liên kết
+            </Button>
+            <Button 
+              onClick={() => setShowShareDialog(false)}
+              variant="ghost"
+              className="w-full"
+            >
+              Bỏ qua
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -319,7 +319,7 @@ const MemorialProfile = ({ onOpenChat, onOpenCall }: MemorialProfileProps) => {
           <div className="flex justify-center">
             <Button
               variant="ghost"
-              onClick={() => navigate('/condolences')}
+                onClick={() => navigate('/')}
               className="text-memorial-primary hover:bg-memorial-primary/10 text-sm"
             >
               <Heart className="h-4 w-4 mr-2" />
